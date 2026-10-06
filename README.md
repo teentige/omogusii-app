@@ -116,7 +116,17 @@ omogusii-app/
 └── dist/               Built frontend (npm run build)
 ```
 
-**Stack:** React 19 + Vite · Express 4 · SQLite (better-sqlite3) · JWT + bcrypt · qrcode.
+**Stack:** React 19 + Vite · Express 4 · SQLite (better-sqlite3) · JWT + bcrypt · qrcode ·
+Capacitor 8 for the Android build.
+
+## Android app & deployment
+
+The `android/` folder is a real, committed Capacitor project (icons and splash screens
+included), and `.github/workflows/android.yml` builds a downloadable debug APK on every push.
+The backend is deployed with `render.yaml` (Render Blueprint) and stays warm via
+`keepalive.yml`.
+
+**Full step-by-step: [`DEPLOY.md`](DEPLOY.md)** — GitHub → Render → APK in about 15 minutes.
 
 **Data model:** `users`, `members`, `rounds`, `contributions`, `loans`, `loan_repayments`,
 `reminders`, `activity`, `settings`.
