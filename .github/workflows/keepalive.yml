@@ -1,0 +1,31 @@
+name: Keep API awake
+
+# Render's free web service sleeps after ~15 minutes of inactivity, and the first
+# request after waking takes 30-60s. This pings the health endpoint so the app
+# stays warm. Set the repo variable API_URL and this runs itself.
+#
+# Note: GitHub disables scheduled workflows after 60 days with no repo activity —
+# any push re-enables them.
+
+on:
+  schedule:
+    - cron: "*/14 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint
+        run: |
+          URL="${{ vars.API_URL }}"
+          if [ -z "$URL" ]; then
+            echo "::notice::No API_URL variable set — add it in Settings → Secrets and variables → Actions → Variables."
+            exit 0
+          fi
+          for i in 1 2; do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$URL/api/health" || echo "000")
+            echo "$(date -u +%FT%TZ) → $CODE"
+            [ "$CODE" = "200" ] && break
+            sleep 20
+          done

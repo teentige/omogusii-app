@@ -1,0 +1,19 @@
+node_modules/
+dist/
+dist-test/
+data/
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.local
+.DS_Store
+
+# Android build output (the android/ project itself IS committed)
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json

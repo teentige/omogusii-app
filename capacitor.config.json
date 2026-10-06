@@ -1,0 +1,18 @@
+{
+  "appId": "com.omogusii.app",
+  "appName": "Omogusii",
+  "webDir": "dist",
+  "androidScheme": "https",
+  "loggingEnabled": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "backgroundColor": "#0f7a52",
+      "showSpinner": false
+    }
+  }
+}

@@ -1,0 +1,34 @@
+# Render Blueprint — deploys the Omogusii API + web app.
+# Import with: Render → New → Blueprint → connect this repo.
+#
+# The Starter plan ($7/mo) is required for the persistent disk that keeps the
+# SQLite database alive across deploys and restarts. On the free plan, delete
+# the `disk:` block and set DB_PATH=/tmp/omogusii.db (data resets on restart,
+# and the app simply re-seeds the demo group).
+
+services:
+  - type: web
+    name: omogusii-api
+    runtime: node
+    region: frankfurt          # closest to Doha
+    plan: starter              # needed for the persistent disk
+    branch: main
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true           # every push to main redeploys
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: DB_PATH
+        value: /var/data/omogusii.db
+      - key: JWT_SECRET
+        generateValue: true    # Render generates a strong random secret
+      - key: CORS_ORIGIN
+        value: "https://localhost,http://localhost"
+      - key: VITE_API_URL
+        sync: false            # set it manually after the first deploy
+    disk:
+      name: omogusii-data
+      mountPath: /var/data
+      sizeGB: 1
