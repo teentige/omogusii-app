@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { api, getToken, setToken } from './api.js';
+import { api, getToken, setToken, getServer, setServer, serverOptions } from './api.js';
 import {
   ToastProvider, GroupProvider, useToast, Icon, Button, Input, Field, useResource,
 } from './ui.jsx';
@@ -48,6 +48,7 @@ function useHash() {
 function Login({ onDone }) {
   const [mode, setMode] = useState('login');
   const [form, setForm] = useState({ username: '', password: '', name: '' });
+  const [server, setServerUrl] = useState(() => getServer() || serverOptions.baked || '');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
   const toast = useToast();
@@ -55,6 +56,7 @@ function Login({ onDone }) {
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true); setErr(null);
+    setServer(server.trim());
     try {
       const data = mode === 'login'
         ? await api.login(form.username, form.password)
@@ -67,6 +69,7 @@ function Login({ onDone }) {
   };
   const quick = async (u, p) => {
     setBusy(true); setErr(null);
+    setServer(server.trim());
     try { const data = await api.login(u, p); setToken(data.token); onDone(data.user); toast(`Signed in as ${data.user.name}`); }
     catch (e) { setErr(e.message); } finally { setBusy(false); }
   };
@@ -109,6 +112,11 @@ function Login({ onDone }) {
             )}
             <Field label="Username"><Input value={form.username} onChange={set('username')} autoComplete="username" placeholder="gabriel" /></Field>
             <Field label="Password"><Input type="password" value={form.password} onChange={set('password')} autoComplete="current-password" placeholder="••••••••" /></Field>
+            <Field label="Server address"
+                   hint="Where your group's data lives. Type the Render URL and it's remembered on this phone.">
+              <Input value={server} onChange={(e) => setServerUrl(e.target.value)}
+                     placeholder="https://omogusii-api.onrender.com" autoComplete="off" inputMode="url" />
+            </Field>
             {err && <div className="pill bad" style={{ marginBottom: 12 }}>{err}</div>}
             <Button className="wide lg" type="submit" disabled={busy}>
               {busy ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}

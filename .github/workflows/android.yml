@@ -36,11 +36,11 @@ jobs:
           # Set repo variable VITE_API_URL to e.g. https://omogusii-api.onrender.com
           VITE_API_URL: ${{ github.event.inputs.apiUrl || vars.VITE_API_URL || '' }}
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21          # Capacitor 8 compiles with Java 21 source level
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3

@@ -1,8 +1,19 @@
 const TOKEN_KEY = 'omogusii.token';
 
-/* Where the API lives. Empty in dev (same origin, Vite proxies it).
-   In the Android build, VITE_API_URL points at the deployed backend. */
-const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+/* Where the API lives.
+   1. Whatever the user typed into the app (stored on the device) wins,
+   2. then VITE_API_URL baked in at build time,
+   3. then same-origin (local dev / Render serving its own frontend).
+   This means one APK works with any backend — change the address in the app
+   and you never need to rebuild. */
+const SERVER_KEY = 'omogusii.server';
+export const getServer = () => { try { return localStorage.getItem(SERVER_KEY) || ''; } catch { return ''; } };
+export const setServer = (v) => {
+  try { v ? localStorage.setItem(SERVER_KEY, v) : localStorage.removeItem(SERVER_KEY); } catch { /* noop */ }
+};
+const BAKED = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const API_BASE = () => (getServer() || BAKED || '').replace(/\/$/, '');
+export const serverOptions = { baked: BAKED };
 export const getToken = () => { try { return localStorage.getItem(TOKEN_KEY); } catch { return null; } };
 export const setToken = (t) => { try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch { /* ignore */ } };
 
@@ -12,7 +23,7 @@ const LATENCY = Number(import.meta.env.VITE_LATENCY ?? 200);
 async function request(path, { method = 'GET', body, params } = {}) {
   if (LATENCY) await new Promise((r) => setTimeout(r, LATENCY));
   const qs = params ? '?' + new URLSearchParams(Object.entries(params).filter(([, v]) => v != null && v !== '')).toString() : '';
-  const res = await fetch(`${API_BASE}/api${path}${qs}`, {
+  const res = await fetch(`${API_BASE()}/api${path}${qs}`, {
     method,
     headers: {
       ...(body ? { 'Content-Type': 'application/json' } : {}),

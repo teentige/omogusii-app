@@ -22,6 +22,14 @@ allprojects {
         google()
         mavenCentral()
     }
+
+    // kotlinx-coroutines 1.6.4 drags in the old kotlin-stdlib-jdk7/jdk8 1.6.21 shims,
+    // which clash with kotlin-stdlib 1.8.22 ("Duplicate class kotlin.internal.jdk7...").
+    // Those shims are empty forwarders to kotlin-stdlib, so dropping them is safe.
+    configurations.all {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+    }
 }
 
 task clean(type: Delete) {

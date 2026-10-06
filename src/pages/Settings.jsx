@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import { getServer, setServer, serverOptions } from '../api.js';
 import {
   Card, Button, Icon, Pill, Field, Input, Select, Modal, Confirm, useToast, useGroup,
   Skeleton, fmtDate,
@@ -43,8 +44,28 @@ export default function Settings({ me, onSaved, onUser }) {
   const [pw, setPw] = useState(false);
   const [reseed, setReseed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [srv, setSrv] = useState(() => getServer() || serverOptions.baked || '');
+  const [probe, setProbe] = useState(null);
+  const [probing, setProbing] = useState(false);
   const toast = useToast();
   const admin = me?.role === 'admin';
+
+  const saveServer = () => {
+    setServer(srv.trim());
+    toast('Server address saved — it applies immediately');
+  };
+  const testServer = async () => {
+    setProbing(true); setProbe(null);
+    try {
+      const res = await fetch(`${srv.trim().replace(/\/$/, '')}/api/health`);
+      const ok = res.ok && (await res.json()).ok;
+      setProbe(ok);
+      toast(ok ? 'Connected to the server ✓' : 'Server replied, but not with a healthy status', ok ? 'ok' : 'err');
+    } catch (e) {
+      setProbe(false);
+      toast('Could not reach that address', 'err');
+    } finally { setProbing(false); }
+  };
 
   useEffect(() => { if (settings) setF({ ...settings }); }, [settings]);
   useEffect(() => { api.groupQr().then(setQr).catch(() => {}); }, []);
@@ -112,6 +133,20 @@ export default function Settings({ me, onSaved, onUser }) {
           </div>
         </Card>
       </form>
+
+      <Card title="Server connection"
+        actions={probe === true ? <Pill kind="ok">Connected</Pill> : probe === false ? <Pill kind="bad">Unreachable</Pill> : null}>
+        <Field label="Backend address"
+               hint="Changing this moves the app to a different server instantly — no rebuild, no reinstall.">
+          <Input value={srv} onChange={(e) => setSrv(e.target.value)} placeholder="https://omogusii-api.onrender.com" inputMode="url" />
+        </Field>
+        <div className="flex" style={{ gap: 8, flexWrap: 'wrap' }}>
+          <Button size="sm" onClick={saveServer}>Save address</Button>
+          <Button size="sm" variant="ghost" onClick={testServer} disabled={probing || !srv.trim()}>
+            {probing ? 'Testing…' : 'Test connection'}
+          </Button>
+        </div>
+      </Card>
 
       <div className="grid g2">
         <Card title="Group payment QR">
