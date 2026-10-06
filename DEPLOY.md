@@ -17,6 +17,21 @@ phone (Omogusii APK)  ──https──▶  Render web service (Express + SQLite
 
 ---
 
+## 0. Installing from a phone (no computer)
+
+Everything below can be done in a mobile browser. The only step that genuinely needs a
+keyboard is getting the code into GitHub — ask your agent to push it with a token, or use a
+computer for five minutes.
+
+**Fastest route on a phone:**
+
+1. Deploy the backend (step 2) — all taps in the Render dashboard.
+2. Open the Render URL in **Chrome on your phone** and sign in.
+3. Chrome **⋮ → Add to Home Screen**. You now have the app — no APK needed.
+4. Later, for a real installable app: open your repo's **Releases → "latest"** and tap the
+   **`.apk`** file. Android installs it directly (allow "Install unknown apps" for Chrome when
+   prompted). The workflow publishes a bare `.apk`, not a zip, precisely for this.
+
 ## 1. Put the code on GitHub
 
 ```bash
